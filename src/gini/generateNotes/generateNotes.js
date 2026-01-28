@@ -3,6 +3,8 @@ dotenv.config();
 
 import OpenAI from "openai";
 
+console.log("key", process.env.apiKey);
+
 const openai = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
   apiKey: process.env.apiKey,
@@ -25,9 +27,9 @@ const generateNotes = async (subject, chapter) => {
     `;
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "tngtech/deepseek-r1t-chimera:free",
       messages: [
-        { role: "system", content: "You are a helpful AI study assistant." },
+        // { role: "system", content: "You are a helpful AI study assistant." },
         { role: "user", content: prompt },
       ],
       max_tokens: 1000,

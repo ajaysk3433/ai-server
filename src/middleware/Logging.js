@@ -1,14 +1,15 @@
 import { v4 as uuidv4 } from "uuid";
 import pool from "../db/db.js";
 export const logging = (req, res, next) => {
+  console.log("logging");
   const originalJson = res.json;
   let responseBody;
 
   const insertQuery = `
-    INSERT INTO logs 
-    (conversation_id, method, url,  status_code,  device, error, created_at) 
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `;
+  INSERT INTO logs 
+  (conversation_id, method, url, status_code, device, request_body, response_body, created_at) 
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+`;
 
   res.json = function (body) {
     responseBody = body;
@@ -16,6 +17,7 @@ export const logging = (req, res, next) => {
   };
 
   res.on("finish", () => {
+    console.log("logging finish");
     const now = new Date();
     const logUuid = uuidv4();
 
@@ -23,11 +25,10 @@ export const logging = (req, res, next) => {
       logUuid,
       req.method,
       req.originalUrl,
-
       res.statusCode,
-
       req.headers["user-agent"],
-      responseBody?.error || null,
+      JSON.stringify(req.body),
+      JSON.stringify(responseBody),
       now,
     ];
 
