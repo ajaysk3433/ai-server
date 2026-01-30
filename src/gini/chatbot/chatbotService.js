@@ -8,11 +8,6 @@ const openai = new OpenAI({
   apiKey: process.env.apiKey,
 });
 
-/**
- * Generate AI response for chatbot (text / voice / image)
- * @param {string} message - User text or transcribed voice
- * @param {string|null} imageUrl - Uploaded image URL (optional)
- */
 export const generateChatbotResponse = async (message, imageUrl = null) => {
   try {
     const systemPrompt = `
