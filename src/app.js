@@ -1,9 +1,11 @@
 import express from "express";
 import giniRouter from "./gini/giniRouter.js"; // router for AI notes
 import { logging } from "./middleware/Logging.js";
+import cors from "cors";
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 app.use("/gini", giniRouter);
 

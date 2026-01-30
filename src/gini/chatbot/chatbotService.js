@@ -8,7 +8,7 @@ const openai = new OpenAI({
   apiKey: process.env.apiKey,
 });
 
-export const generateChatbotResponse = async (message, imageUrl = null) => {
+export const streamChatbotResponse = async (messages, res) => {
   try {
     const systemPrompt = `
 You are an AI tutor for students.
@@ -19,37 +19,35 @@ Rules:
 - Focus only on the question asked
 `;
 
-    let messages = [{ role: "system", content: systemPrompt }];
+    const finalMessages = [
+      { role: "system", content: systemPrompt },
+      ...messages,
+    ];
 
-    // Image-based input
-    if (imageUrl) {
-      messages.push({
-        role: "user",
-        content: [
-          {
-            type: "text",
-            text: message || "Explain the question in this image",
-          },
-          { type: "image_url", image_url: { url: imageUrl } },
-        ],
-      });
-    } else {
-      // Text / voice input
-      messages.push({
-        role: "user",
-        content: message,
-      });
-    }
-
-    const completion = await openai.chat.completions.create({
+    const stream = await openai.chat.completions.create({
       model: "tngtech/deepseek-r1t-chimera:free",
-      messages,
+      messages: finalMessages,
+      stream: true,
       max_tokens: 1200,
     });
 
-    return completion.choices[0].message.content;
+    for await (const chunk of stream) {
+      const content = chunk.choices?.[0]?.delta?.content;
+
+      if (content) {
+        res.write(
+          `data: ${JSON.stringify({
+            choices: [{ delta: { content } }],
+          })}\n\n`,
+        );
+      }
+    }
+
+    res.write("data: [DONE]\n\n");
+    res.end();
   } catch (error) {
-    console.error("Chatbot Service Error:", error);
-    return "Sorry, I couldn't process your request right now.";
+    console.error("Streaming Service Error:", error);
+    res.write("data: [DONE]\n\n");
+    res.end();
   }
 };
