@@ -1,5 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
+import { parseMCQs } from "../../util/parceMCQ.js";
+import { parseQnA } from "../../util/parceQnA.js";
 
 import OpenAI from "openai";
 
@@ -37,7 +39,10 @@ const generatePracticeQuestions = async (
       max_tokens: 1500,
     });
 
-    return completion.choices[0].message;
+    if (questionType === "MCQ") {
+      return parseMCQs(completion.choices[0].message.content);
+    }
+    return parseQnA(completion.choices[0].message.content);
   } catch (error) {
     console.error("Error generating practice questions:", error);
     return "Failed to generate practice questions. Please try again.";
