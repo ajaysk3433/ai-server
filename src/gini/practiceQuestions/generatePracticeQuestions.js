@@ -27,10 +27,25 @@ const generatePracticeQuestions = async (
   if (questionType === "PQ") {
     return await PQ(class_, language, subject, chapter);
   }
-  return await dynamicQnA(class_, language, subject, chapter, questionType);
+  return await dynamicQnA(
+    class_,
+    language,
+    subject,
+    chapter,
+    questionType,
+    questionsCount,
+  );
 };
 
-const dynamicQnA = async (class_, language, subject, chapter, questionType) => {
+const dynamicQnA = async (
+  class_,
+  language,
+  subject,
+  chapter,
+  questionType,
+  questionsCount,
+) => {
+  console.log(questionsCount);
   try {
     const prompt = `
       You are an expert educator. Generate **${questionType} questions**
