@@ -2,7 +2,8 @@ import { generatePracticeQuestions } from "./generatePracticeQuestions.js";
 
 export const generatePracticeQuestionsController = async (req, res) => {
   try {
-    const { subject, chapter, questionType, class_, language } = req.body;
+    const { subject, chapter, questionType, class_, language, questionsCount } =
+      req.body;
 
     if (!subject || !chapter || !questionType) {
       return res.status(400).json({
@@ -17,6 +18,7 @@ export const generatePracticeQuestionsController = async (req, res) => {
       subject,
       chapter,
       questionType,
+      questionsCount,
     );
 
     res.status(200).json({
