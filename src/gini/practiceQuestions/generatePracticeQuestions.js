@@ -45,7 +45,7 @@ const dynamicQnA = async (
   questionType,
   count,
 ) => {
-  console.log(questionType);
+  console.log(questionType, count);
   try {
     const prompt = `
       You are an expert educator. Generate **${count} ${questionType} question${count > 1 ? "s" : ""}**
