@@ -14,18 +14,32 @@ export const generatePracticeQuestionsController = async (req, res) => {
 
     const allQuestions = {};
 
-    // Loop through each requested question type
-    for (const type of questionType) {
-      const count = questionsCount[type.toLowerCase()] || 1; // default to 1 if not specified
-      allQuestions[type] = await generatePracticeQuestions(
-        class_,
-        language,
-        subject,
-        chapter,
-        type,
-        count,
-      );
-    }
+    // // Loop through each requested question type
+    // for (const type of questionType) {
+    //   const count = questionsCount[type.toLowerCase()] || 1; // default to 1 if not specified
+    //   allQuestions[type] = await generatePracticeQuestions(
+    //     class_,
+    //     language,
+    //     subject,
+    //     chapter,
+    //     type,
+    //     count,
+    //   );
+    // }
+
+    await Promise.all(
+      questionType.map(async (type) => {
+        const count = questionsCount[type.toLowerCase()] || 1;
+        allQuestions[type] = await generatePracticeQuestions(
+          class_,
+          language,
+          subject,
+          chapter,
+          type,
+          count,
+        );
+      }),
+    );
 
     res.status(200).json({
       subject,
