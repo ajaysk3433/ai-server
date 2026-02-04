@@ -17,9 +17,8 @@ const generatePracticeQuestions = async (
   subject,
   chapter,
   questionType,
-  questionsCount,
+  count,
 ) => {
-  console.log(questionType);
   if (questionType === "PYQ") {
     return await PYQ(class_, language, subject, chapter);
   }
@@ -27,13 +26,14 @@ const generatePracticeQuestions = async (
   if (questionType === "PQ") {
     return await PQ(class_, language, subject, chapter);
   }
+
   return await dynamicQnA(
     class_,
     language,
     subject,
     chapter,
     questionType,
-    questionsCount,
+    count,
   );
 };
 
@@ -43,20 +43,19 @@ const dynamicQnA = async (
   subject,
   chapter,
   questionType,
-  questionsCount,
+  count,
 ) => {
-  console.log(questionsCount);
+  console.log(questionType);
   try {
     const prompt = `
-      You are an expert educator. Generate **${questionType} questions**
-      for students studying in ${class_}, subject ${subject}, chapter "${chapter}",
-      response in ${language}
-      
+      You are an expert educator. Generate **${count} ${questionType} question${count > 1 ? "s" : ""}**
+      for students studying in ${class_}, subject ${subject}, chapter "${chapter}".
+      Response should be in ${language}.
+
       Instructions:
-      - If ${questionType} is MCQs, provide ${questionsCount} multiple choice questions with 4 options each and indicate the correct answer.
-      - If ${questionType} is Short Answer, provide ${questionsCount} questions that can be answered in 2-3 lines.
-      - If ${questionType} is Long Answer, provide ${questionsCount} questions that require detailed answers.
-     
+      - If ${questionType} is MCQ, provide ${count} multiple choice questions with 4 options each and indicate the correct answer.
+      - If ${questionType} is Short Answer, provide ${count} questions that can be answered in 2-3 lines.
+      - If ${questionType} is Long Answer, provide ${count} questions that require detailed answers.
 
       Provide the questions clearly, numbered, and in an easy-to-read format.
     `;
@@ -67,23 +66,26 @@ const dynamicQnA = async (
       max_tokens: 1500,
     });
 
+    const content = completion.choices[0].message.content;
+
     if (questionType === "MCQ") {
-      return parseMCQs(completion.choices[0].message.content);
+      return parseMCQs(content);
     }
-    return parseQnA(completion.choices[0].message.content);
+    return parseQnA(content);
   } catch (error) {
-    console.error("Error generating practice questions:", error);
-    return "Failed to generate practice questions. Please try again.";
+    console.error(`Error generating ${questionType} questions:`, error);
+    return `Failed to generate ${questionType} questions. Please try again.`;
   }
 };
 
-const PYQ = async (class_, language, subject, chapter, questionType) => {
+const PYQ = async (class_, language, subject, chapter) => {
   const questions = await getPYQ([class_, language, subject, chapter]);
   return questions;
 };
 
-const PQ = async (class_, language, subject, chapter, questionType) => {
+const PQ = async (class_, language, subject, chapter) => {
   const questions = await getPYQ([class_, language, subject, chapter]);
   return questions;
 };
+
 export { generatePracticeQuestions };
